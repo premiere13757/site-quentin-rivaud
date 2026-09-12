@@ -1,6 +1,9 @@
 {
   "version": 2,
-  "public": false,
-  "rewrites": [{ "source": "/(.*)", "destination": "/dist/$1" }],
-  "headers": [{ "source": "/dist/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/dist/$1"
+    }
+  ]
 }
