@@ -1,0 +1,6 @@
+{
+  "name": "cahier-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {"dev":"npx serve dist","build":"node -e \"console.log('Site statique prêt')\""}
+}
