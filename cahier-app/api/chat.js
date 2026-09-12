@@ -1,10 +1,11 @@
 export default async function handler(req,res){
   if(req.method!=='POST')return res.status(405).json({error:'Méthode non autorisée'});
   if(!process.env.GEMINI_API_KEY)return res.status(500).json({error:'Clé Gemini absente'});
-  const {question,courses=[],firstName='Quentin',image=null}=req.body||{};
+  const {question,courses=[],firstName='Quentin',image=null,history=[]}=req.body||{};
   if(!question||typeof question!=='string')return res.status(400).json({error:'Question manquante'});
   const courseContext=courses.length?courses.map(c=>`Matière : ${c.matiere}\nRemarques : ${c.notes}\nCours : ${c.cours}`).join('\n\n'):'Aucun cours enregistré pour le moment.';
-  const prompt=`Tu es l’assistant scolaire personnel de ${firstName}, élève de lycée. Réponds en français, clairement et sans inventer le contenu de ses cours. Appuie-toi en priorité sur les cours fournis. Si l’information n’y figure pas, précise-le. Aide à comprendre et à réviser, mais ne fais pas passer une supposition pour un fait.\n\nCOURS ENREGISTRÉS :\n${courseContext}\n\nQUESTION :\n${question}`;
+  const conversation=history.slice(-10).map(m=>`${m.role==='user'?firstName:'Assistant'} : ${String(m.text||'').slice(0,3000)}`).join('\n');
+  const prompt=`Tu es l’assistant scolaire personnel de ${firstName}, élève de lycée. Réponds en français, clairement et sans inventer le contenu de ses cours. Appuie-toi en priorité sur les cours fournis. Si l’information n’y figure pas, précise-le. Aide à comprendre et à réviser, mais ne fais pas passer une supposition pour un fait.\n\nCOURS ENREGISTRÉS :\n${courseContext}\n\nHISTORIQUE DE LA CONVERSATION :\n${conversation||'Aucun message précédent.'}\n\nQUESTION :\n${question}`;
   try{
     const parts=[{text:prompt}];
     if(image?.data&&image?.mimeType){if(image.data.length>4000000)return res.status(413).json({error:'Image trop volumineuse'});parts.push({inlineData:{mimeType:image.mimeType,data:image.data}})}
